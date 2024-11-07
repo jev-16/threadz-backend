@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 4000;
 
 app.use(morgan("dev"));
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(express.json()); 
 
 app.options("*", cors(["http://localhost:4200"]));
 app.use(cors(["http://localhost:4200"]));
