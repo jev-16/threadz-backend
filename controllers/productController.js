@@ -189,10 +189,10 @@ productController.one = async (req, res, next) => {
 // add product
 productController.add = async (req, res, next) => {
 	const { prod_nme, prod_desc, prod_price, cat_id, qty, colorVariants, sizeVariants } = req.body;
-	const file = req.file;
+	const files = req.files;
+	console.log("NEW PRODUCT", req.body);
 
 	let img = "";
-	if (file) img = `${fileNameExt}_${file.originalname}`;
 
 	const [newProduct] = await pool.query(
 		`
@@ -209,18 +209,31 @@ productController.add = async (req, res, next) => {
 		});
 
 	// add color variants for product
-	for (let color of colorVariants) {
+	let cVariants = JSON.parse(colorVariants);
+	let i = 0;
+
+	for (let color of cVariants) {
+		const file = req.files;
+		console.log("FILE: ", file);
+
+		if (file[i]) {
+			img = `${fileNameExt}_${file[i].originalname}`;
+		}
+
 		const [addVariant] = await pool.query(
 			`
 				INSERT INTO product_color (product_id, image, color, additional_cost) 
 				VALUES (?, ?, ?, ?)
 			`,
-			[newProduct.insertId, color.image, color.color, color.additional_cost],
+			[newProduct.insertId, img, color.color, color.additional_cost],
 		);
+
+		i += 1;
 	}
 
 	// add size variants for product
-	for (let size of sizeVariants) {
+	const sVariants = JSON.parse(sizeVariants);
+	for (let size of sVariants) {
 		const [addVariant] = await pool.query(
 			`
 				INSERT INTO product_size (product_id, size, details, additional_cost) 
@@ -237,8 +250,8 @@ productController.add = async (req, res, next) => {
 		prod_price,
 		cat_id,
 		qty,
-		colorVariants,
-		sizeVariants,
+		cVariants,
+		sVariants,
 	};
 
 	return res.status(200).json({

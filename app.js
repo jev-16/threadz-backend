@@ -1,6 +1,6 @@
 import express from "express";
 import morgan from "morgan";
-import cors from "cors";
+import cors from "cors"; 
 
 // import routes
 import { authRouter } from "./routes/authRouter.js";
@@ -15,6 +15,8 @@ const PORT = process.env.PORT || 4000;
 app.use(morgan("dev"));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json()); 
+
+app.use("/assets", express.static("assets"));
 
 app.options("*", cors(["http://localhost:4200"]));
 app.use(cors(["http://localhost:4200"]));
